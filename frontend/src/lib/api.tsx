@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "/api"
+const API_BASE = (import.meta as any).env?.VITE_API_BASE ?? "/api";
+
 
 interface ApiError extends Error {
   status?: number
