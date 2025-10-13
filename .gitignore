@@ -5,6 +5,15 @@
 .env.local
 .env.production.local
 
+# Gitea local data (DON'T commit this!)
+gitea/gitea-data/
+gitea/gitea-db/
+
+# Docker volumes
+**/gitea-data/
+**/gitea-db/
+
+
 # Database files
 *.db
 *.db-journal
