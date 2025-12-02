@@ -5,12 +5,11 @@ import { PageHeader } from "../components/PageHeader.tsx"
 import { FormField } from "../components/FormField.tsx"
 import { PrimaryButton } from "../components/PrimaryButton.tsx"
 
-export function Register() {
+export function Login() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -26,14 +25,6 @@ export function Register() {
 
     if (!formData.password) {
       newErrors.password = "Password is required"
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password"
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match"
     }
 
     setErrors(newErrors)
@@ -48,7 +39,7 @@ export function Register() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {
+      const response = await fetch("http://localhost:8000/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,11 +57,11 @@ export function Register() {
         navigate("/dashboard")
       } else {
         const errorData = await response.json()
-        setErrors({ general: errorData.detail || "Registration failed" })
+        setErrors({ general: errorData.detail || "Login failed" })
       }
     } catch (error) {
       setErrors({ general: "Unable to connect to server. Please try again." })
-      console.error("Registration error:", error)
+      console.error("Login error:", error)
     } finally {
       setIsLoading(false)
     }
@@ -82,10 +73,6 @@ export function Register() {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
     }
-    // Also clear confirmPassword error if password changes
-    if (field === "password" && errors.confirmPassword) {
-      setErrors((prev) => ({ ...prev, confirmPassword: "" }))
-    }
   }
 
   return (
@@ -93,7 +80,7 @@ export function Register() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">DevHub</h2>
-          <PageHeader title="Create your account" subtitle="Join DevHub and start managing your projects." />
+          <PageHeader title="Sign in to your account" subtitle="Welcome back! Please enter your credentials." />
         </div>
 
         <Card className="p-8">
@@ -123,65 +110,46 @@ export function Register() {
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
               error={errors.password}
-              placeholder="Create a password"
-              autoComplete="new-password"
-              help="Must be at least 6 characters long"
+              placeholder="Enter your password"
+              autoComplete="current-password"
               required
             />
 
-            <FormField
-              label="Confirm password"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-              error={errors.confirmPassword}
-              placeholder="Confirm your password"
-              autoComplete="new-password"
-              required
-            />
-
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
                 <input
-                  id="terms"
-                  name="terms"
+                  id="remember-me"
+                  name="remember-me"
                   type="checkbox"
-                  required
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="terms" className="text-gray-700">
-                  I agree to the{" "}
-                  <a
-                    href="#"
-                    className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    href="#"
-                    className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
-                  >
-                    Privacy Policy
-                  </a>
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  Remember me
                 </label>
+              </div>
+
+              <div className="text-sm">
+                <a
+                  href="#"
+                  className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                >
+                  Forgot password?
+                </a>
               </div>
             </div>
 
             <PrimaryButton type="submit" loading={isLoading} className="w-full">
-              Create account
+              Sign in
             </PrimaryButton>
 
             <div className="text-center">
               <span className="text-sm text-gray-600">
-                Already have an account?{" "}
+                Don't have an account?{" "}
                 <Link
-                  to="/login"
+                  to="/register"
                   className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                 >
-                  Sign in
+                  Create account
                 </Link>
               </span>
             </div>
@@ -191,3 +159,4 @@ export function Register() {
     </div>
   )
 }
+
