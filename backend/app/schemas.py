@@ -1,25 +1,92 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+# backend/app/schemas.py
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 
-class RepositoryCreate(BaseModel):
-    """Schema for creating a repository"""
-    name: str = Field(..., min_length=1, max_length=100, pattern="^[a-zA-Z0-9_-]+$")
-    description: Optional[str] = Field(None, max_length=500)
+# User Schemas
+class UserBase(BaseModel):
+    email: EmailStr
+    full_name: Optional[str] = None
+
+class UserCreate(UserBase):
+    password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class User(UserBase):
+    id: int
+    username: Optional[str] = None
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# Token Schemas
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+# Repository Schemas
+class RepositoryBase(BaseModel):
+    name: str
+    description: Optional[str] = None
     is_private: bool = False
 
-class RepositoryResponse(BaseModel):
-    """Schema for repository response"""
+class RepositoryCreate(RepositoryBase):
+    pass
+
+class Repository(RepositoryBase):
     id: int
-    name: str
-    description: Optional[str]
-    is_private: bool
     owner_id: int
     gitea_id: Optional[int] = None
+    gitea_owner: Optional[str] = None
     clone_url: Optional[str] = None
     ssh_url: Optional[str] = None
     created_at: datetime
-    updated_at: Optional[datetime]
-    
+    updated_at: Optional[datetime] = None
+
     class Config:
         from_attributes = True
+
+RepositoryResponse = Repository
+
+# ✨ NEW SCHEMAS - Add these
+class CommitBase(BaseModel):
+    repo_id: int
+    repo_name: str
+    sha: str
+    message: str
+    author: str
+    author_email: Optional[str] = None
+    pusher: str
+    timestamp: datetime
+    url: Optional[str] = None
+
+class CommitCreate(CommitBase):
+    pass
+
+class Commit(CommitBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Webhook Schemas
+class WebhookPayload(BaseModel):
+    """Schema for Gitea webhook payload"""
+    ref: Optional[str] = None
+    before: Optional[str] = None
+    after: Optional[str] = None
+    compare_url: Optional[str] = None
+    commits: list = []
+    repository: dict = {}
+    pusher: dict = {}
+    sender: dict = {}
